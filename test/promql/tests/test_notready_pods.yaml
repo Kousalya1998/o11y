@@ -155,7 +155,7 @@ tests:
       - series: 'kube_pod_status_unschedulable{namespace="kube-test", pod="pod-3"}'
         values: '0x14'
 
-      # Pod is in the Pending state and scheduled, but it has a namespace 'default
+      # Pod is in the Pending state and scheduled, but it has a namespace 'default'
       # so it's ignored.
       - series: 'kube_pod_status_phase{pod="pod-4", namespace="default", phase="Failed"}'
         values: '1x14'
