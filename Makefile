@@ -2,16 +2,17 @@ PINT_VERSION = 0.42.2
 PROMTOOL_VERSION = 2.42.0
 YQ_VERSION = 4.31.2
 EXTRACTED_RULE_FILE = test/promql/extracted-rules.yaml
-RECORDING_RULE_FILES = prometheus/base/recording/*.yaml
-ALERTING_RULE_FILES = prometheus/base/alerting/*.yaml
+ALERTING_RULE_FILES = rhobs/alerting/*.yaml
+GRAFANA_DASHBOARDS = $(shell ls grafana/dashboards) 
+GOPATH = $(shell go env GOPATH)
 
 .PHONY: all
-all: prepare sync_pipenv lint test_rules pint_lint lint_yamls kustomize_build
+all: prepare sync_pipenv lint test_rules pint_lint lint_yamls dashboard_linter lint_grafana_dashboards kustomize_build
 
 .PHONY: prepare
 prepare: pint promtool yq kustomize
 	echo "Extract Prometheus rules"
-	(./yq eval-all '. as $$item ireduce ({}; . *+ $$item)' ${RECORDING_RULE_FILES} ${ALERTING_RULE_FILES} | ./yq ".spec" ) > ${EXTRACTED_RULE_FILE}
+	(./yq eval-all '. as $$item ireduce ({}; . *+ $$item)' ${ALERTING_RULE_FILES} | ./yq ".spec" ) > ${EXTRACTED_RULE_FILE}
 
 .PHONY: lint
 lint:
@@ -46,6 +47,9 @@ yq:
 kustomize:
 	curl -s "https://raw.githubusercontent.com/kubernetes-sigs/kustomize/master/hack/install_kustomize.sh"  | bash
 
+dashboard_linter:
+	go install github.com/grafana/dashboard-linter@v0.0.0-20230531105903-cd7fcaf3bec8
+
 .PHONY: pint_lint
 pint_lint:
 	echo "Linting Prometheus rules..."
@@ -62,6 +66,13 @@ sync_pipenv:
 .PHONY: lint_yamls
 lint_yamls:
 	python3 -m pipenv run yamllint . && echo "lint_yamls: SUCCESS"
+
+.PHONY: lint_grafana_dashboards
+lint_grafana_dashboards:
+	@for dashboard in ${GRAFANA_DASHBOARDS} ; do \
+		echo -e "Linting dashboard $$dashboard\n"; \
+		${GOPATH}/bin/dashboard-linter lint grafana/dashboards/$$dashboard; done
+	@echo
 
 .PHONY: kustomize_build
 kustomize_build:

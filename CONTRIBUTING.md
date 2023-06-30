@@ -14,6 +14,7 @@ This section describes the main steps required before you can add your code and 
 * Linux machine with x86-64 architecture with bash installed.
 * Basic tools: curl, tar, make.
 * Python3 and pipenv. (run: `python3 -m pip install pipenv --user`)
+* Go installed. Intructions in Go's [docs](https://go.dev/doc/install)
 
 ### Running the Automated Tests
 1. Clone your fork of the project.
@@ -25,6 +26,7 @@ The following tools are currently used for automated testing within the project:
 * [pint](https://cloudflare.github.io/pint) - PromQL linting
 * [gitlint](https://jorisroovers.com/gitlint/) - commit message linting
 * [yamllint](https://yamllint.readthedocs.io) - YAML linting
+* [dashboard-linter](https://github.com/grafana/dashboard-linter/blob/main/docs/index.md) - Grafana Dashboards linting
 
 ### Unit Tests
 PromQL unit tests are stored in YAML files under [test/promql/tests](test/promql/tests).
@@ -89,6 +91,14 @@ and add the label_pipelines_appstudio_openshift_io_type to it.
 
 Signed-off-by: Avi Biton <abiton@redhat.com>
 ```
+
+### Pull Request Description
+The PR description (the first comment at the top of the PR) can usually be derived from
+the commit message body - especially if the PR consists of a single commit.
+
+On top of that, the PR description should include a bit of context, so that reviewers
+won't have to perform extensive research just to be able to provide relevant code
+review.
 
 ### Code Review Guidelines
 * Each PR should be approved by at least 2 team members. Those approvals are only

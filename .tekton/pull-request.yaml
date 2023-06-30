@@ -131,6 +131,7 @@ spec:
                 #!/bin/bash -ex
 
                 python -m pip install gitlint
+                git config --global --add safe.directory '*'
                 git fetch origin "$(params.target-branch)"
                 gitlint --fail-without-commits --commits "origin/$(params.target-branch)..HEAD"
       - name: yaml-lint
@@ -147,6 +148,20 @@ spec:
               image: registry.access.redhat.com/ubi9/python-39:latest
               workingDir: $(workspaces.workspace.path)
               script: make install_pipenv sync_pipenv lint_yamls
+      - name: run-grafana-dashboard-lint
+        workspaces:
+          - name: workspace
+            workspace: workspace
+        runAfter:
+          - clone-repository
+        taskSpec:
+          workspaces:
+            - name: workspace
+          steps:
+            - name: run-grafana-dashboard-lint
+              image: registry.access.redhat.com/ubi9/go-toolset:latest
+              workingDir: $(workspaces.workspace.path)
+              script: make dashboard_linter lint_grafana_dashboards
   workspaces:
     - name: workspace
       volumeClaimTemplate:
